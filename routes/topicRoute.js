@@ -1,36 +1,34 @@
 import express from "express";
 
-const topicRoute = (client) => {
-	const router = express.Router();
-	
-	router.post("/", async (req, res) => {
-		try {
-			const { userInput } = req.body;
-		
-			const topicCompletion = await client.chatCompletion({
-				model: "deepseek-ai/DeepSeek-R1",
-				messages: [
-					{
-						role: "user",
-						content: `Generate a list of 5 distinct and actionable topic ideas based on the following keywords: ${userInput}. Please format the topics in a concise, clear, bullet-point list with no explanations or reasoning included.`,
+const topicRoute = (model) => {
+  const router = express.Router();
 
-					}
-				],
-				provider: "sambanova",
-				max_tokens: 500,
-			});
+  router.post("/", async (req, res) => {
+    try {
+      const { userInput } = req.body;
 
-			const topics = topicCompletion.choices[0].message.content.trim().split("\n");
-	
-			res.json({
-				topics: topics,
-			});
-		} catch (error) {
-			res.status(500).json({ error: error.message });
-		}
-	});
+      if (!userInput) {
+        return res.status(400).json({ error: "User input is required" });
+      }
 
-	return router;
+      // Construct a prompt for generating topic ideas
+      const prompt = `Generate a list of 5 distinct and actionable topic ideas based on the following keywords: ${userInput}. Please format the topics in a concise, clear, bullet-point list with no explanations or reasoning included.`;
+
+      // Generate content using the Gemini model
+      const result = await model.generateContent(prompt);
+      const responseText = result.response.text().trim();
+
+      // Split the result into a list of topics
+      const topics = responseText.split("\n").map((topic) => topic.trim()).filter(Boolean);
+
+      res.json({ topics });
+    } catch (error) {
+      console.error("Error generating topics:", error);
+      res.status(500).json({ error: "Internal server error" });
+    }
+  });
+
+  return router;
 };
 
 export default topicRoute;

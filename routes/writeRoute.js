@@ -1,33 +1,29 @@
 import express from "express";
 
-const writeRoute = (client) => {
+const writeRoute = (model) => {
   const router = express.Router();
 
   router.post("/", async (req, res) => {
     try {
       const { prompt } = req.body; // Get the prompt from the request body
 
-      // Generate a piece of content based on the user-provided prompt
-      const writeCompletion = await client.chatCompletion({
-        model: "deepseek-ai/DeepSeek-R1",
-        messages: [
-          {
-            role: "user",
-            content: `Write a detailed article based on the following prompt: ${prompt}. Make sure the content is clear, well-structured, and informative, with an engaging introduction and conclusion. Avoid unnecessary fluff and keep it concise.`,
-          },
-        ],
-        provider: "sambanova",
-        max_tokens: 1000, // You can adjust the token limit based on the expected length of the content
-      });
+      if (!prompt) {
+        return res.status(400).json({ error: "Prompt is required" });
+      }
 
-      // Extract the generated content from the response
-      const content = writeCompletion.choices[0].message.content.trim();
+      // Construct the prompt for Gemini to generate a detailed article
+      const articlePrompt = `Write a detailed article based on the following prompt: ${prompt}. Make sure the content is clear, well-structured, and informative, with an engaging introduction and conclusion. Avoid unnecessary fluff and keep it concise.`;
+
+      // Generate content using Gemini API
+      const result = await model.generateContent(articlePrompt);
+      const responseText = result.response.text().trim();
 
       res.json({
-        content: content, // Return the content to the client
+        content: responseText, // Return the generated content
       });
     } catch (error) {
-      res.status(500).json({ error: error.message }); // Handle any errors
+      console.error("Error generating content:", error);
+      res.status(500).json({ error: "Internal server error" });
     }
   });
 
