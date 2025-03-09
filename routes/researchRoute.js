@@ -1,31 +1,68 @@
 import express from "express";
 
-const researchRoute = (client) => {
-	const router = express.Router();
+const researchRoute = (model) => {
+  const router = express.Router();
 
-	router.post("/", async (req, res) => {
-		try {
-		  const { topic } = req.body;
-	
-		  if (!topic) {
-			return res.status(400).json({ error: "Topic is required" });
-		  }
-	
-		  // Constructing a prompt for Gemini API
-		  const prompt = `You are an expert researcher. Provide key facts, trends, and recent updates on the topic: "${topic}". Make sure the information is recent and relevant.`;
-	
-		  // Generate response using Gemini model
-		  const result = await model.generateContent(prompt);
-		  const responseText = result.response.text();
-	
-		  res.json({ research: responseText });
-		} catch (error) {
-		  console.error("Error retrieving research:", error);
-		  res.status(500).json({ error: "Internal server error" });
-		}
-	});
-	  
-		return router;
+  router.post("/", async (req, res) => {
+    try {
+      const { topic } = req.body;
+      console.log("Received topic:", topic);
+
+      if (!topic) {
+        return res.status(400).json({ error: "Topic is required" });
+      }
+
+      // Updated prompt to request bullet points and limit length
+      const prompt = `You are an expert researcher. Provide key facts, trends, and recent updates on the topic: "${topic}" in a bullet point format. 
+      
+      Your response MUST:
+      - Contain exactly 5-7 bullet points
+      - Each bullet point should be concise (1-2 sentences)
+      - Focus only on the most important information
+      - Be organized in order of relevance
+      - Include recent developments when applicable
+      
+      Format your entire response as bullet points only. Do not include any introduction or conclusion paragraphs.`;
+      
+      console.log("Constructed prompt:", prompt);
+
+      // Generate response using Gemini model
+      const result = await model.generateContent(prompt);
+
+      // Extract text based on the structure we observed
+      let responseText = "No content returned";
+      
+      if (result && result.response) {
+        // Based on your output, we now know the exact path to the text
+        if (result.response.candidates && 
+            result.response.candidates.length > 0 && 
+            result.response.candidates[0].content && 
+            result.response.candidates[0].content.parts && 
+            result.response.candidates[0].content.parts.length > 0 && 
+            result.response.candidates[0].content.parts[0].text) {
+              
+          responseText = result.response.candidates[0].content.parts[0].text.trim();
+          console.log("Successfully extracted text from Gemini response structure");
+        } else if (result.response.text) {
+          // Fallback for possible alternative structure
+          responseText = result.response.text.trim();
+        } else {
+          console.log("Couldn't find text in the expected path, response structure:", 
+            JSON.stringify(result.response, null, 2).substring(0, 500) + "...");
+        }
+      }
+
+      console.log("Extracted response text:", responseText.substring(0, 100) + "...");
+      res.json({ research: responseText });
+
+    } catch (error) {
+      console.error("Error retrieving research:", error);
+      console.error("Error stack:", error.stack);
+      res.status(500).json({ error: error.message || "Internal server error" });
+    }
+  });
+
+  return router;
 };
 
 export default researchRoute;
