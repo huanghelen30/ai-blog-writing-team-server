@@ -12,7 +12,6 @@ const researchRoute = (model) => {
         return res.status(400).json({ error: "Topic is required" });
       }
 
-      // Updated prompt to request bullet points and limit length
       const prompt = `You are an expert researcher. Provide key facts, trends, and recent updates on the topic: "${topic}" in a bullet point format. 
       
       Your response MUST:
@@ -26,14 +25,11 @@ const researchRoute = (model) => {
       
       console.log("Constructed prompt:", prompt);
 
-      // Generate response using Gemini model
       const result = await model.generateContent(prompt);
 
-      // Extract text based on the structure we observed
       let responseText = "No content returned";
       
       if (result && result.response) {
-        // Based on your output, we now know the exact path to the text
         if (result.response.candidates && 
             result.response.candidates.length > 0 && 
             result.response.candidates[0].content && 
@@ -44,7 +40,6 @@ const researchRoute = (model) => {
           responseText = result.response.candidates[0].content.parts[0].text.trim();
           console.log("Successfully extracted text from Gemini response structure");
         } else if (result.response.text) {
-          // Fallback for possible alternative structure
           responseText = result.response.text.trim();
         } else {
           console.log("Couldn't find text in the expected path, response structure:", 

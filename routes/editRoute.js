@@ -12,7 +12,6 @@ const editRoute = (model) => {
         return res.status(400).json({ error: "Both draft and instructions are required" });
       }
 
-      // Construct a clear prompt for Gemini
       const prompt = `You are an expert blog editor. Refine the following draft according to the provided instructions. 
       
       **Draft:**  
@@ -30,14 +29,11 @@ const editRoute = (model) => {
 
       console.log("Constructed edit prompt");
 
-      // Generate response from Gemini
       const result = await model.generateContent(prompt);
 
-      // Extract text based on the correct Gemini API response structure
       let refinedDraft = "No content returned";
       
       if (result && result.response) {
-        // Based on the structure we identified in previous routes
         if (result.response.candidates && 
             result.response.candidates.length > 0 && 
             result.response.candidates[0].content && 
@@ -48,7 +44,6 @@ const editRoute = (model) => {
           refinedDraft = result.response.candidates[0].content.parts[0].text.trim();
           console.log("Successfully extracted refined draft from Gemini response");
         } else if (result.response.text) {
-          // Fallback for possible alternative structure
           refinedDraft = result.response.text.trim();
         } else {
           console.log("Couldn't find text in the expected path, response structure:", 

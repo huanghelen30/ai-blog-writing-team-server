@@ -5,14 +5,13 @@ const writeRoute = (model) => {
 
   router.post("/", async (req, res) => {
     try {
-      const { prompt } = req.body; // Get the prompt from the request body
+      const { prompt } = req.body;
       console.log("Received writing prompt:", prompt);
 
       if (!prompt) {
         return res.status(400).json({ error: "Prompt is required" });
       }
 
-      // Construct the prompt for Gemini to generate a detailed article
       const articlePrompt = `Write a detailed article based on the following prompt: ${prompt}. 
       
       Your article should:
@@ -27,14 +26,11 @@ const writeRoute = (model) => {
 
       console.log("Constructed article prompt");
 
-      // Generate content using Gemini API
       const result = await model.generateContent(articlePrompt);
 
-      // Extract text based on the correct Gemini API response structure
       let articleContent = "No content returned";
       
       if (result && result.response) {
-        // Based on the structure we identified in the research route
         if (result.response.candidates && 
             result.response.candidates.length > 0 && 
             result.response.candidates[0].content && 
@@ -45,7 +41,7 @@ const writeRoute = (model) => {
           articleContent = result.response.candidates[0].content.parts[0].text.trim();
           console.log("Successfully extracted article from Gemini response");
         } else if (result.response.text) {
-          // Fallback for possible alternative structure
+    
           articleContent = result.response.text.trim();
         } else {
           console.log("Couldn't find text in the expected path, response structure:", 
@@ -55,7 +51,7 @@ const writeRoute = (model) => {
 
       console.log("Article generated successfully. Length:", articleContent.length);
       res.json({
-        content: articleContent, // Return the generated content
+        content: articleContent,
       });
     } catch (error) {
       console.error("Error generating content:", error);
