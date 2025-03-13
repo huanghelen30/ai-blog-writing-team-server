@@ -11,7 +11,11 @@ const topicRoute = (model) => {
         return res.status(400).json({ error: "User input is required" });
       }
 
-      const prompt = `Generate a list of 5 distinct and actionable topic ideas based on the following keywords: ${userInput}. Please format the topics in a concise, clear, bullet-point list with no explanations or reasoning included.`;
+      const prompt = 
+      `Generate a list of 5 distinct and actionable topic 
+      ideas based on the following keywords: ${userInput}. 
+      Please format the topics in a concise, clear,
+       bullet-point list with no explanations or reasoning included.`;
 
       const result = await model.generateContent(prompt);
       const responseText = result.response.text().trim();
