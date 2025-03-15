@@ -38,8 +38,7 @@ const researchRoute = () => {
             title: mainTopicResponse.data.title,
             description: mainTopicResponse.data.description || "",
             extract: formatAsPoints(mainTopicResponse.data.extract || ""),
-            url: mainTopicResponse.data.content_urls?.desktop?.page || "",
-            thumbnail: mainTopicResponse.data.thumbnail?.source || null
+            url: mainTopicResponse.data.content_urls?.desktop?.page || ""
           };
           
           const relatedPromises = [];
@@ -62,8 +61,7 @@ const researchRoute = () => {
                 title: data.title,
                 description: data.description || "",
                 summary: formatAsPoints(data.extract || ""),
-                url: data.content_urls?.desktop?.page || "",
-                thumbnail: data.thumbnail?.source || null
+                url: data.content_urls?.desktop?.page || ""
               };
             });
           
@@ -81,8 +79,7 @@ const researchRoute = () => {
             title: titles[0],
             description: descriptions[0] || "",
             extract: formatAsPoints(descriptions[0] || ""),
-            url: urls[0] || "",
-            thumbnail: null
+            url: urls[0] || ""
           };
           
           const relatedTopics = [];
@@ -91,8 +88,7 @@ const researchRoute = () => {
               title: titles[i],
               description: descriptions[i] || "",
               summary: formatAsPoints(descriptions[i] || ""),
-              url: urls[i] || "",
-              thumbnail: null
+              url: urls[i] || ""
             });
           }
           
