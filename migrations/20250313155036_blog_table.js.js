@@ -7,7 +7,7 @@ export function up(knex) {
         table.increments('id').primary();
         table.string('title').notNullable();
         table.string('selectedTopic').notNullable();
-        table.json('content').nullable();
+        table.string('content').nullable();
         table.enu('status', ['draft', 'published']).defaultTo('draft');
         table.timestamp('created_at').defaultTo(knex.fn.now());
         table.timestamp('updated_at').defaultTo(knex.fn.now());
