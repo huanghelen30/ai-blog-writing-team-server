@@ -1,4 +1,4 @@
-import db from '../db.js';
+import db from '../helpers/db.js';
 
 export const createBlog = async (blogData) => {
   return await db('blogs').insert(blogData).returning('*');
