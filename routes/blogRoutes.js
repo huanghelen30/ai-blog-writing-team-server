@@ -3,8 +3,9 @@ import BlogController from '../controllers/blogController.js';
 
 const router = express.Router();
 
-router.get('/blogs', BlogController.getAllBlogs);
-router.get('/blogs/:id', BlogController.getBlogById);
-router.post('/blogs', BlogController.createBlog);
+router.get('/', BlogController.getAllBlogs);
+router.get('/:id', BlogController.getBlogById);
+router.post('/', BlogController.createBlog);
+router.put('/:id', BlogController.editBlog);
 
 export default router;

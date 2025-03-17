@@ -22,16 +22,6 @@ app.use(express.json({
   }
 }));
 
-app.use((err, req, res, next) => {
-  console.error('Server error:', err);
-  console.error('Error stack:', err.stack);
-  console.error('Request URL:', req.url);
-  console.error('Request method:', req.method);
-  console.error('Request headers:', req.headers);
-  console.error('Raw body:', req.rawBody);
-  res.status(500).json({ error: 'Internal server error', message: err.message });
-});
-
 app.use("/topic", topicRoutes(model));
 app.use("/research", researchRoutes(model));
 app.use("/write", writeRoutes(model));
