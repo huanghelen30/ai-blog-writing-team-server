@@ -3,6 +3,7 @@
  * @returns { Promise<void> }
  */
 export async function seed(knex) {
+    await knex('research_data').del();
     await knex('blogs').del();
 
     const blogIds = await knex('blogs').insert([

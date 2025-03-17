@@ -4,7 +4,7 @@
  */
 export function up(knex) {
     return knex.schema.createTable('research_data', (table) => {
-        table.increments('id').primary();
+        table.increments('research_data_id').primary();
         table.integer('blog_id').unsigned().references('id').inTable('blogs');
         table.string('source').notNullable();
         table.text('content').notNullable();
