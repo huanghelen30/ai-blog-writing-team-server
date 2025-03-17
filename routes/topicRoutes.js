@@ -1,4 +1,5 @@
 import express from "express";
+import { v4 as uuidv4 } from "uuid";
 import { createBlog } from "../models/blogModel.js";
 
 const topicRoutes = (model) => {
@@ -19,6 +20,7 @@ const topicRoutes = (model) => {
       if (hasExistingTopic === true && existingTopic) {
         try {
           const newBlog = await createBlog({
+            id: uuidv4(),
             title: existingTopic,
             selectedTopic: existingTopic,
             content: "", 
@@ -65,6 +67,7 @@ const topicRoutes = (model) => {
         if (selectedTopic) {
           try {
           const newBlog = await createBlog({
+            id: uuidv4(),
             title: selectedTopic,
             selectedTopic: selectedTopic,
             status: "draft"

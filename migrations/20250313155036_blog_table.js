@@ -4,7 +4,7 @@
  */
 export function up(knex) {
     return knex.schema.createTable('blogs', (table) => {
-        table.increments('id').primary();
+        table.increments('id').primary().defaultTo(knex.raw('gen_random_uuid()'));
         table.string('title').notNullable();
         table.string('selectedTopic').notNullable();
         table.string('content').nullable();

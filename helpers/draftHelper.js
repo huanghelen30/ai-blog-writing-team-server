@@ -1,4 +1,4 @@
-import { getDbConnection } from './db'; // Assuming you have a DB connection helper
+import { getDbConnection } from './db';
 
 export const updateDraftContent = async (blogId, updatedDraft) => {
   const db = await getDbConnection();
