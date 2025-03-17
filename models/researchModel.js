@@ -1,13 +1,33 @@
 import db from '../helpers/db.js';
 
-export const saveResearchData = async (researchData) => {
-  return await db('research_data').insert(researchData).returning('*');
+export const saveResearchData = async (blogId, researchData) => {
+  try {
+    return await db('research_data').insert({
+      blog_id: blogId,
+      source: researchData.source,
+      content: researchData.content
+    });
+  } catch (error) {
+    console.error('Error saving research data:', error);
+    throw error;
+  }
 };
 
 export const getResearchByBlogId = async (blogId) => {
-  return await db('research_data').where({ blog_id: blogId }).select('*');
-};
-
-export const deleteResearchData = async (id) => {
-  return await db('research_data').where({ id }).del();
+  try {
+    if (!blogId) {
+      throw new Error('Blog ID is required');
+    }
+    
+    console.log('Database query for blogId:', blogId);
+    
+    const result = await db.select('*').from('research_data').where('blog_id', '=', blogId);
+    
+    console.log('Database query result count:', result.length);
+    
+    return result;
+  } catch (error) {
+    console.error('Error in getResearchByBlogId:', error);
+    throw error;
+  }
 };

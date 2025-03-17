@@ -1,6 +1,5 @@
 import express from "express";
 import BlogController from '../controllers/blogController.js';
-import { getResearchByBlogId, deleteResearchData } from '../models/researchModel.js';
 
 const router = express.Router();
 

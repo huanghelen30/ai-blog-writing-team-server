@@ -1,11 +1,11 @@
 import express from "express";
 import * as researchController from "../controllers/researchController.js";
 
-const researchRoutes = (model) => {
+const researchRoutes = () => {
   const router = express.Router();
 
-  router.post("/research", researchController.handleResearch);
-  router.get("/:id", researchController.getResearch);
+  router.post("/", researchController.handleResearch);
+  router.get("/:blogId", researchController.getResearch);
   
   return router;
 };
