@@ -1,7 +1,8 @@
 import db from '../helpers/db.js';
 
 export const createBlog = async (blogData) => {
-  return await db('blogs').insert(blogData).returning('*');
+  const [id] = await db('blogs').insert(blogData);
+  return await getBlogById(id);
 };
 
 export const getBlogById = async (id) => {
@@ -9,7 +10,8 @@ export const getBlogById = async (id) => {
 };
 
 export const updateBlog = async (id, blogData) => {
-  return await db('blogs').where({ id }).update(blogData).returning('*');
+  await db('blogs').where({ id }).update(blogData);
+  return await getBlogById(id);
 };
 
 export const getAllBlogs = async () => {
@@ -17,5 +19,6 @@ export const getAllBlogs = async () => {
 };
 
 export const deleteBlog = async (id) => {
-  return await db('blogs').where({ id }).del();
+  const deletedRows = await db('blogs').where({ id }).del();
+  return deletedRows > 0;
 };

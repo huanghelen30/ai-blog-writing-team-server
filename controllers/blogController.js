@@ -22,12 +22,20 @@ class BlogController {
 
   static async createBlog(req, res) {
     try {
-      const newBlog = await BlogModel.createBlog(req.body);
+      const { selectedTopic } = req.body;
+  
+      const blogData = {
+        selectedTopic,
+        content: req.body.content || "No content provided.",
+      };
+  
+      const newBlog = await BlogModel.createBlog(blogData);
       res.status(201).json(newBlog);
     } catch (error) {
-      res.status(500).json({ message: "Error creating blog" });
+      console.error("Error creating blog:", error);
+      res.status(500).json({ message: "Internal server error" });
     }
-  };
+  }
 
   static async editBlog(req, res) {
     try {
