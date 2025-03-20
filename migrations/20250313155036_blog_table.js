@@ -4,8 +4,7 @@
  */
 export function up(knex) {
     return knex.schema.createTable('blogs', (table) => {
-        table.increments('id').primary(); 
-        table.string('title').notNullable();
+        table.increments('id').primary();
         table.string('selectedTopic').notNullable();
         table.string('content').nullable();
         table.enu('status', ['draft', 'published']).defaultTo('draft');

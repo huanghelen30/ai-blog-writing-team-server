@@ -1,7 +1,7 @@
 import express from "express";
 import * as BlogModel from "../models/blogModel.js";
 
-const writeRoute = (model) => {
+const writeRoutes = (model) => {
   const router = express.Router();
 
   router.post("/", async (req, res) => {
@@ -79,4 +79,4 @@ const writeRoute = (model) => {
     return router;
 };
 
-export default writeRoute;
+export default writeRoutes;

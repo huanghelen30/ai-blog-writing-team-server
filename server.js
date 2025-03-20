@@ -16,17 +16,13 @@ const port = process.env.PORT || 8082;
 app.locals.model = model;
 
 app.use(cors());
-app.use(express.json({
-  verify: (req, res, buf) => {
-    req.rawBody = buf.toString();
-  }
-}));
+app.use(express.json());
 
 app.use("/topic", topicRoutes(model));
-app.use("/research", researchRoutes(model));
-app.use("/write", writeRoutes(model));
-app.use("/edit", editRoutes(model));
-app.use("/blogs", blogRoutes);
+app.use("/research/:blogId", researchRoutes(model));
+app.use("/write/:blogId", writeRoutes(model));
+app.use("/edit/:blogId", editRoutes(model));
+app.use("/blog", blogRoutes());
 
 app.get("/", (req, res) => {
   res.send("Server is running");

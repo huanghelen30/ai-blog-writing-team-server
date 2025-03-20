@@ -1,6 +1,6 @@
 import express from "express";
 
-const editRoute = (model) => {
+const editRoutes = (model) => {
   const router = express.Router();
 
   router.post("/", async (req, res) => {
@@ -56,4 +56,4 @@ const editRoute = (model) => {
   return router;
 };
 
-export default editRoute;
+export default editRoutes;
