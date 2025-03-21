@@ -4,8 +4,8 @@ import * as researchController from "../controllers/researchController.js";
 const researchRoutes = () => {
   const router = express.Router();
 
-  router.post("/", researchController.handleResearch);
-  router.get("/", researchController.getResearch);
+  router.post("/:blogId", researchController.handleResearch);
+  router.get("/:blogId", researchController.getResearch);
   
   return router;
 };
