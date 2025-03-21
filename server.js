@@ -19,9 +19,9 @@ app.use(cors());
 app.use(express.json());
 
 app.use("/topic", topicRoutes(model));
-app.use("/research/:blogId", researchRoutes(model));
-app.use("/write/:blogId", writeRoutes(model));
-app.use("/edit/:blogId", editRoutes(model));
+app.use("/research/", researchRoutes(model));
+app.use("/write/", writeRoutes(model));
+app.use("/edit/", editRoutes(model));
 app.use("/blog", blogRoutes());
 
 app.get("/", (req, res) => {

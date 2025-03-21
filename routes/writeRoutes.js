@@ -4,7 +4,7 @@ import * as BlogModel from "../models/blogModel.js";
 const writeRoutes = (model) => {
   const router = express.Router();
 
-  router.post("/", async (req, res) => {
+  router.post("/:blogId", async (req, res) => {
     try {
       const { research } = req.body;
       console.log("Received research data:", JSON.stringify(research, null, 2));

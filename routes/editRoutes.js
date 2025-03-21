@@ -3,7 +3,7 @@ import express from "express";
 const editRoutes = (model) => {
   const router = express.Router();
 
-  router.post("/", async (req, res) => {
+  router.post("/:blogId", async (req, res) => {
     try {
       const { draft, instructions, style } = req.body;
       console.log("[EDIT] Received request with instructions:", instructions);

@@ -12,25 +12,23 @@ const fetchResearch = async (topic) => {
     const searchResponse = await axios.get(searchUrl, { headers });
 
     const titles = searchResponse.data[1] || [];
-    if (titles.length === 0) throw new Error("No search results found");
+
+    if (titles.length === 0) {
+      console.error(`No search results found for topic: ${topic}`);
+      return {
+        mainTopic: {
+          title: "No results found",
+          description: "Sorry, no relevant research could be found for this topic.",
+          summary: "Please try searching with a different topic or phrase.",
+          url: ""
+        }
+      };
+    }
 
     const mainTopic = await fetchTopicSummary(titles[0]);
-    const relatedTopics = await Promise.allSettled(
-      titles.slice(1, 4).map(title => fetchTopicSummary(title))
-    );
-
-    const formattedRelatedTopics = relatedTopics
-      .filter(result => result.status === 'fulfilled' && result.value?.summary)
-      .map(result => ({
-        title: result.value.title,
-        description: result.value.description,
-        summary: result.value.summary,
-        url: result.value.url
-      }));
 
     return {
-      mainTopic,
-      relatedTopics: formattedRelatedTopics
+      mainTopic
     };
   } catch (error) {
     console.error(`Error fetching research for topic ${topic}:`, error);
@@ -60,21 +58,16 @@ const saveResearch = async (blogId, research) => {
     if (!blogId) {
       throw new Error('Blog ID is required to save research');
     }
-    
-    const researchEntries = [
+
+    const researchEntry = [
       { 
         blog_id: blogId, 
-        source: research.mainTopic.url || research.mainTopic.title || "Unknown", 
+        source: research.mainTopic.url || "Unknown", 
         content: JSON.stringify(research.mainTopic) 
-      },
-      ...research.relatedTopics.map(topic => ({
-        blog_id: blogId, 
-        source: topic.url || topic.title || "Unknown", 
-        content: JSON.stringify(topic)
-      }))
+      }
     ];
 
-    await Promise.all(researchEntries.map(entry => saveResearchData(blogId, entry)));
+    await saveResearchData(blogId, researchEntry);
     return true;
   } catch (error) {
     console.error('Error saving research:', error);
@@ -85,8 +78,7 @@ const saveResearch = async (blogId, research) => {
 const analyzeResearch = async (question, research, model) => {
   try {
     const prompt = `Generate a response to the question: "${question}" based on the following data: 
-    Main Topic: ${research.mainTopic.title} | Summary: ${research.mainTopic.summary} 
-    Related Topics: ${research.relatedTopics.map(topic => `${topic.title}: ${topic.summary}`).join(" ")}`;
+    Summary: ${research.content}`
 
     const result = await model.generateContent(prompt);
     return result.response.text();
@@ -100,6 +92,5 @@ export default {
   fetchResearch,
   fetchTopicSummary,
   saveResearch,
-  analyzeResearch,
-  getResearchByBlogId
+  analyzeResearch
 };

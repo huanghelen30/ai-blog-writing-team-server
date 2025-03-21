@@ -1,69 +1,55 @@
-import { getResearchByBlogId } from "../models/researchModel.js";
+import { getBlogTopicById, getResearchByBlogId } from "../models/researchModel.js";
 import researchService from "../service/researchService.js";
 
 export const handleResearch = async (req, res) => {
   try {
-    const { blogId, topic, question, skipResearchFetch } = req.body;
-    
+    const { action, userInput } = req.body;
+    const blogId = req.params.blogId; 
+
+    console.log(`[handleResearch] Received request for blogId: ${blogId}, action: ${action}, userInput: ${userInput}`);
+
     if (!blogId) {
-      return res.status(400).json({ error: "Blog ID is required" });
-    }
-    
-    if (skipResearchFetch) {
-      return res.json({ 
-        answer: "You opted to skip the research step.", 
-        researchSources: [],
-        nextStep: "/write",
-      });
+      console.warn(`[handleResearch] Invalid or missing blogId`);
+      return res.status(400).json({ error: "Invalid blog ID" });
     }
 
-    if (!topic) {
-      return res.status(400).json({ error: "Topic is required for analysis" });
+    const topic = await getBlogTopicById(blogId);
+    console.log(`[handleResearch] Retrieved topic for blogId: ${blogId}`, topic);
+
+    if (!topic || Object.keys(topic).length === 0 || !topic) {
+      console.warn(`[handleResearch] No valid topic found for blogId: ${blogId}`);
+      return res.status(404).json({ error: "No valid topic found for this blog ID" });
     }
 
-    const research = await researchService.fetchResearch(topic);
-    await researchService.saveResearch(blogId, research);
-    
-    let answer = "No question provided.";
-    if (question) {
-      try {
-        answer = await researchService.analyzeResearch(
-          question, 
-          research, 
-          req.app.locals.model
-        );
-      } catch (analyzeError) {
-        console.error("Error in research analysis:", analyzeError);
-        answer = "Error analyzing research. Please try again.";
-      }
-    }
-    console.log("Research Object: ", research);
+    console.log(`[handleResearch] Selected topic for blogId ${blogId}: ${topic}`);
 
-    const researchSources = [];
-    if (research.mainTopic && research.mainTopic.url) {
-      researchSources.push(research.mainTopic.url);
+    let researchData = null;
+
+    if (action === "research") {
+      console.log(`[handleResearch] Fetching research data for topic: ${topic}`);
+      researchData = await researchService.fetchResearch(topic);
+    } else if (action === "refine" && userInput) {
+      console.log(`[handleResearch] Refining research for blogId: ${blogId} with user input`);
+      researchData = await researchService.analyzeResearch(blogId, userInput);
+    } else {
+      console.log(`[handleResearch] Fetching existing research data for blogId: ${blogId}`);
+      researchData = await getResearchByBlogId(blogId);
     }
-    
-    if (research.relatedTopics && Array.isArray(research.relatedTopics)) {
-      research.relatedTopics.forEach(topic => {
-        if (topic.url) {
-          researchSources.push(topic.url);
-        }
-      });
+
+    console.log(`[handleResearch] researchData after processing action:`, researchData);
+
+    if (!researchData) {
+      console.warn(`[handleResearch] No research data found for blogId: ${blogId}`);
+      return res.status(404).json({ error: "No research data available" });
     }
 
     return res.json({
-      answer,
-      researchSummaries: {
-        mainTopicSummary: research.mainTopic ? research.mainTopic.summary : [],
-        relatedTopicSummaries: research.relatedTopics ? research.relatedTopics.map(topic => topic.summary) : []
-      },
-      researchSources,  
-      nextStep: "/write",
+      mainTopicSummary: researchData?.mainTopic?.summary || "",
+      researchSource: researchData?.mainTopic?.url ? [researchData.mainTopic.url] : []
     });
-    
+
   } catch (error) {
-    console.error("Error in handleResearch:", error);
+    console.error(`[handleResearch] Error processing research for blogId ${req.params.blogId}:`, error);
     return res.status(500).json({ 
       error: "Internal server error", 
       message: error.message 
@@ -71,26 +57,31 @@ export const handleResearch = async (req, res) => {
   }
 };
 
+
 export const getResearch = async (req, res) => {
   try {
-    const { blogId } = req.params;
-    
+    const blogId = req.params.blogId;
+    console.log(`[getResearch] Received request for blogId: ${blogId}`);
+
     if (!blogId) {
-      return res.status(400).json({ error: 'Blog ID is required' });
+      console.warn(`[getResearch] Missing blogId in request`);
+      return res.status(400).json({ error: "Blog ID is required" });
     }
-    
-    console.log('Fetching research for blogId:', blogId);
-    
+
+    console.log(`[getResearch] Fetching research for blogId: ${blogId}`);
     const researchData = await getResearchByBlogId(blogId);
-    console.log('Research data fetched:', researchData ? researchData.length : 0, 'items');
+    console.log(`[getResearch] Research data fetched:`, researchData);
 
-    if (!researchData || researchData.length === 0) {
-      return res.status(404).json({ error: 'Research not found for this blogId' });
+    if (!researchData || Object.keys(researchData).length === 0) {
+      console.warn(`[getResearch] No research found for blogId: ${blogId}`);
+      return res.status(404).json({ error: "Research not found for this blog ID" });
     }
 
+    console.log(`[getResearch] Returning research data for blogId: ${blogId}`);
     return res.json({ research: researchData });
+
   } catch (error) {
-    console.error("Error fetching research:", error);
+    console.error(`[getResearch] Error fetching research for blogId ${req.params.blogId}:`, error);
     if (!res.headersSent) {
       return res.status(500).json({ 
         error: "Error fetching research", 
