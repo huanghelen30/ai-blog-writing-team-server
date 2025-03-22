@@ -12,7 +12,7 @@ const topicRoutes = (model) => {
         const result = await model.generateContent(prompt);
         const responseText = result.response.text().trim();
 
-        let cleanResponse = responseText.replace(/(\*\*|\*|##)/g, ""); // Remove markdown symbols
+        let cleanResponse = responseText.replace(/(\*\*|\*|##)/g, "");
         cleanResponse = cleanResponse.replace(/\n+/g, "\n").trim()
 
         const topics = cleanResponse

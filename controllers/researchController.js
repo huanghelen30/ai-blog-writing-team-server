@@ -1,42 +1,32 @@
-import { getBlogTopicById, getResearchByBlogId, saveResearchData } from "../models/researchModel.js";
+import { getBlogTopicById, getResearchByBlogId } from "../models/blogModel.js";
+import { saveResearchData } from "../models/researchModel.js";
 import researchService from "../service/researchService.js";
 
 export const handleResearch = async (req, res) => {
   try {
-    const { action, userInput } = req.body;
-    const blogId = req.params.blogId; 
+    const { action } = req.body;
+    const id = req.params.blogId; 
 
-    console.log(`[handleResearch] Received request for blogId: ${blogId}, action: ${action}, userInput: ${userInput}`);
-
-    if (!blogId) {
-      console.warn(`[handleResearch] Invalid or missing blogId`);
+    if (!id) {
       return res.status(400).json({ error: "Invalid blog ID" });
     }
 
-    const topic = await getBlogTopicById(blogId);
-    console.log(`[handleResearch] Retrieved topic for blogId: ${blogId}`, topic);
+    const topic = await getBlogTopicById(id);
 
     if (!topic || Object.keys(topic).length === 0 || !topic) {
-      console.warn(`[handleResearch] No valid topic found for blogId: ${blogId}`);
       return res.status(404).json({ error: "No valid topic found for this blog ID" });
     }
 
-    console.log(`[handleResearch] Selected topic for blogId ${blogId}: ${topic}`);
-
+    const topicString = topic.selectedTopic;
     let researchData = null;
 
     if (action === "research") {
-      console.log(`[handleResearch] Fetching research data for topic: ${topic}`);
-      researchData = await researchService.fetchResearch(topic);
+      researchData = await researchService.fetchResearch(topicString);
     } else {
-      console.log(`[handleResearch] Fetching existing research data for blogId: ${blogId}`);
-      researchData = await getResearchByBlogId(blogId);
+      researchData = await getResearchByBlogId(id);
     }
 
-    console.log(`[handleResearch] researchData after processing action:`, researchData);
-
     if (!researchData) {
-      console.warn(`[handleResearch] No research data found for blogId: ${blogId}`);
       return res.status(404).json({ error: "No research data available" });
     }
 
@@ -46,7 +36,7 @@ export const handleResearch = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(`[handleResearch] Error processing research for blogId ${req.params.blogId}:`, error);
+    console.error(`[handleResearch] Error processing research for blogId ${req.params.id}:`, error);
     return res.status(500).json({ 
       error: "Internal server error", 
       message: error.message 
@@ -55,60 +45,61 @@ export const handleResearch = async (req, res) => {
 };
 
 export const saveResearch = async (req, res) => {
-  const blogId = req.params.blogId;
-  const { mainTopic, source } = req.body;
+  const id = req.params.blogId;
+  const { content, source } = req.body;
 
   try {
-    if (!blogId) {
+    if (!id) {
       throw new Error('Blog ID is required to save research');
     }
-    
-    const researchEntry = 
-      { 
-        blog_id: blogId,
-        content: JSON.stringify(mainTopic),
-        source: source || "Unknown",  
-      }
-    ;
 
-    await saveResearchData(blogId, researchEntry);
+    console.log(`Saving research for blog ID: ${id}`);
+    console.log('Research Data:', content);
+
+    if (!content) {
+      throw new Error('Research data is missing or undefined');
+    }
+
+    const researchEntry = {
+      content: JSON.stringify(content),
+      source: source || "Unknown",
+    };
+
+    // Save research data to the database
+    const result = await saveResearchData(id, researchEntry);
+    console.log(result);  // Log the result from the database function
+
     res.json({ message: "Research saved successfully!" });
   } catch (error) {
-    console.error('Error saving research:', error);
-    throw error;
+    console.error('[saveResearch] Error:', error);
+    res.status(500).json({ error: "Error saving research", message: error.message });
   }
 };
+
 
 
 export const getResearch = async (req, res) => {
   try {
     const blogId = req.params.blogId;
-    console.log(`[getResearch] Received request for blogId: ${blogId}`);
+    console.log(`[getResearch] Fetching research for blogId: ${blogId}`);
 
     if (!blogId) {
-      console.warn(`[getResearch] Missing blogId in request`);
       return res.status(400).json({ error: "Blog ID is required" });
     }
 
-    console.log(`[getResearch] Fetching research for blogId: ${blogId}`);
     const researchData = await getResearchByBlogId(blogId);
-    console.log(`[getResearch] Research data fetched:`, researchData);
-
+    
     if (!researchData || Object.keys(researchData).length === 0) {
-      console.warn(`[getResearch] No research found for blogId: ${blogId}`);
       return res.status(404).json({ error: "Research not found for this blog ID" });
     }
 
-    console.log(`[getResearch] Returning research data for blogId: ${blogId}`);
+    // Ensure the stored JSON content is parsed correctly
+    researchData.content = researchData.content ? JSON.parse(researchData.content) : null;
+
     return res.json({ research: researchData });
 
   } catch (error) {
-    console.error(`[getResearch] Error fetching research for blogId ${req.params.blogId}:`, error);
-    if (!res.headersSent) {
-      return res.status(500).json({ 
-        error: "Error fetching research", 
-        message: error.message 
-      });
-    }
+    console.error(`[getResearch] Error fetching research for blogId ${blogId}:`, error);
+    res.status(500).json({ error: "Error fetching research", message: error.message });
   }
 };
