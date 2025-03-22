@@ -1,23 +1,23 @@
 import db from '../helpers/db.js';
 
-export const saveResearchData = async (blogId, researchData) => {
+export const saveResearchData = async (blogId, researchEntry) => {
   try {
     if (!blogId) {
       console.error("Blog ID is missing");
       return;
     }
 
-    const result = await db('research_data').insert({
-      blog_id: blogId,
-      source: researchData.source,
-      content: researchData.content
-    });
+    console.log("Attempting to save research data:", researchEntry); // Log data before insertion
+
+    const result = await db('research_data').where('blog_id', blogId).first();
+    console.log("Database Insert Result:", result); // Log DB response
 
     return result;
   } catch (error) {
     console.error('Error saving research data:', error);
   }
 };
+
 
 export const getBlogTopicById = async (blogId) => {
   try {

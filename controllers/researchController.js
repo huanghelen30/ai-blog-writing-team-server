@@ -1,4 +1,4 @@
-import { getBlogTopicById, getResearchByBlogId } from "../models/researchModel.js";
+import { getBlogTopicById, getResearchByBlogId, saveResearchData } from "../models/researchModel.js";
 import researchService from "../service/researchService.js";
 
 export const handleResearch = async (req, res) => {
@@ -28,9 +28,6 @@ export const handleResearch = async (req, res) => {
     if (action === "research") {
       console.log(`[handleResearch] Fetching research data for topic: ${topic}`);
       researchData = await researchService.fetchResearch(topic);
-    } else if (action === "refine" && userInput) {
-      console.log(`[handleResearch] Refining research for blogId: ${blogId} with user input`);
-      researchData = await researchService.analyzeResearch(blogId, userInput);
     } else {
       console.log(`[handleResearch] Fetching existing research data for blogId: ${blogId}`);
       researchData = await getResearchByBlogId(blogId);
@@ -54,6 +51,31 @@ export const handleResearch = async (req, res) => {
       error: "Internal server error", 
       message: error.message 
     });
+  }
+};
+
+export const saveResearch = async (req, res) => {
+  const blogId = req.params.blogId;
+  const { mainTopic, source } = req.body;
+
+  try {
+    if (!blogId) {
+      throw new Error('Blog ID is required to save research');
+    }
+    
+    const researchEntry = 
+      { 
+        blog_id: blogId,
+        content: JSON.stringify(mainTopic),
+        source: source || "Unknown",  
+      }
+    ;
+
+    await saveResearchData(blogId, researchEntry);
+    res.json({ message: "Research saved successfully!" });
+  } catch (error) {
+    console.error('Error saving research:', error);
+    throw error;
   }
 };
 
