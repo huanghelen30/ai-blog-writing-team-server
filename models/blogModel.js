@@ -20,7 +20,6 @@ export const getBlogTopicById = async (id) => {
   }
 };
 
-
 export const getResearchByBlogId = async (blogId) => {
   try {
     console.log(`[getResearchByBlogId] Fetching research for blogId: ${blogId}`);

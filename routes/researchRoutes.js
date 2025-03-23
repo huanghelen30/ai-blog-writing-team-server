@@ -5,7 +5,7 @@ const researchRoutes = () => {
   const router = express.Router();
 
   router.post("/:blogId", researchController.handleResearch);
-  router.post("/save/:blogId", researchController.saveResearch);
+  router.put("/:blogId", researchController.saveResearch);
   router.get("/:blogId", researchController.getResearch);
   
   return router;

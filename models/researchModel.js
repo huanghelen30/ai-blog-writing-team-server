@@ -4,33 +4,35 @@ export const saveResearchData = async (id, researchEntry) => {
   try {
     if (!id) {
       console.error("Blog ID is missing");
-      return { success: false, message: "Blog ID is missing" };  // Return message to caller
+      return { success: false, message: "Blog ID is missing" };
     }
 
-    // Log the data being passed
-    console.log("[saveResearchData] Checking existing research for blogId:", id);
-
-    // Check if research entry already exists
     const existingEntry = await db('research_data').where('blog_id', id).first();
 
     if (existingEntry) {
-      console.log("[saveResearchData] Found existing entry. Updating research data...");
-
-      // Update existing entry
-      const updateResult = await db('research_data').where('blog_id', id).update(researchEntry);
-      console.log("[saveResearchData] Update result:", updateResult);
+      await db('research_data').where('blog_id', id).update(researchEntry);
+      return { success: true, message: "Research entry updated" };
     } else {
-      console.log("[saveResearchData] No existing entry found. Inserting new research data...");
-
-      // Insert new entry
-      const insertResult = await db('research_data').insert({ blog_id: id, ...researchEntry });
-      console.log("[saveResearchData] Insert result:", insertResult);
+      await db('research_data').insert({ blog_id: id, ...researchEntry });
+      return { success: true, message: "Research entry created" };
     }
 
-    // Return success message
-    return { success: true, message: "Research entry saved" };
   } catch (error) {
     console.error("[saveResearchData] Error:", error);
-    return { success: false, message: "Failed to save research entry", error: error.message }; // Return error message
+    return { success: false, message: "Failed to save research entry", error: error.message }; 
+  }
+};
+
+export const getResearchData = async (id) => {
+  try {
+    if (!id) {
+      console.error("Blog ID is missing");
+      return { success: false, message: "Blog ID is missing" };
+    }
+
+    await db.select('*').from('research_data').where({ id }).first();
+
+  } catch (error) {
+    return { success: false, message: "Failed to fetch research data", error: error.message }; 
   }
 };

@@ -1,3 +1,4 @@
+import { getResearchData } from "../models/researchModel.js";
 import * as BlogModel from "../models/blogModel.js";
 
 export const writeDraft = async (req, res, model) => {
@@ -10,23 +11,26 @@ export const writeDraft = async (req, res, model) => {
       }
 
       let existingBlog = await BlogModel.getBlogById(id);
+      let existingResearch = await getResearchData(id);
 
       if (!existingBlog) {
         return res.status(404).json({ error: "Blog draft not found" });
       }
 
       const mainTopic = existingBlog.selectedTopic;
+      const research = existingResearch.content;
       const articlePrompt = `Write a detailed first draft article about: "${mainTopic}".
+
+      take in this research data: "${research}" to write a detailed first draft article.
 
       Your article should:
       - Have a clear, engaging introduction
       - Be well-structured with logical flow between paragraphs
       - Be informative and fact-based
       - Include a concise conclusion
-      - Be approximately 500-800 words in length
+      - Be max 300 words in length
       - Avoid unnecessary fluff and jargon
-
-      Format the article with appropriate headers and paragraph breaks for readability.`;
+      - write it out as if it were a essay in paragraph format with no bold or italic characters, skip the headings and subheadings`;
 
       const result = await model.generateContent(articlePrompt);
       const responseText = result.response.text().trim();

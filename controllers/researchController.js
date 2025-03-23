@@ -53,9 +53,6 @@ export const saveResearch = async (req, res) => {
       throw new Error('Blog ID is required to save research');
     }
 
-    console.log(`Saving research for blog ID: ${id}`);
-    console.log('Research Data:', content);
-
     if (!content) {
       throw new Error('Research data is missing or undefined');
     }
@@ -65,9 +62,7 @@ export const saveResearch = async (req, res) => {
       source: source || "Unknown",
     };
 
-    // Save research data to the database
     const result = await saveResearchData(id, researchEntry);
-    console.log(result);  // Log the result from the database function
 
     res.json({ message: "Research saved successfully!" });
   } catch (error) {
@@ -81,7 +76,6 @@ export const saveResearch = async (req, res) => {
 export const getResearch = async (req, res) => {
   try {
     const blogId = req.params.blogId;
-    console.log(`[getResearch] Fetching research for blogId: ${blogId}`);
 
     if (!blogId) {
       return res.status(400).json({ error: "Blog ID is required" });
@@ -93,7 +87,6 @@ export const getResearch = async (req, res) => {
       return res.status(404).json({ error: "Research not found for this blog ID" });
     }
 
-    // Ensure the stored JSON content is parsed correctly
     researchData.content = researchData.content ? JSON.parse(researchData.content) : null;
 
     return res.json({ research: researchData });

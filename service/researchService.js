@@ -7,7 +7,6 @@ const headers = {
 
 const fetchResearch = async (topic) => {
   try {
-    console.log(`Searching Wikipedia for topic: ${topic}`);
     const searchUrl = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(topic)}&limit=5&format=json&origin=*`;
     
     const searchResponse = await axios.get(searchUrl, { headers });
@@ -27,7 +26,6 @@ const fetchResearch = async (topic) => {
 
     const mainTopic = await fetchTopicSummary(titles[0]);
 
-    console.log(`Main topic data:`, mainTopic); // Log the final main topic data
     return {
       mainTopic
     };
@@ -41,8 +39,6 @@ const fetchTopicSummary = async (title) => {
   try {
     const url = `https://en.wikipedia.org/api/rest_v1/page/summary/${encodeURIComponent(title)}`;
     const { data } = await axios.get(url, { headers });
-    
-    console.log(`Fetched topic summary for ${title}:`, data); // Log the data response
 
     return {
       title: data.title,
