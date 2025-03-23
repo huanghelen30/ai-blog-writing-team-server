@@ -1,59 +1,38 @@
 import db from '../helpers/db.js';
 
-export const saveResearchData = async (blogId, researchData) => {
+export const saveResearchData = async (id, researchEntry) => {
   try {
-    if (!blogId) {
+    if (!id) {
       console.error("Blog ID is missing");
-      return;
+      return { success: false, message: "Blog ID is missing" };
     }
 
-    const result = await db('research_data').insert({
-      blog_id: blogId,
-      source: researchData.source,
-      content: researchData.content
-    });
+    const existingEntry = await db('research_data').where('blog_id', id).first();
 
-    return result;
+    if (existingEntry) {
+      await db('research_data').where('blog_id', id).update(researchEntry);
+      return { success: true, message: "Research entry updated" };
+    } else {
+      await db('research_data').insert({ blog_id: id, ...researchEntry });
+      return { success: true, message: "Research entry created" };
+    }
+
   } catch (error) {
-    console.error('Error saving research data:', error);
+    console.error("[saveResearchData] Error:", error);
+    return { success: false, message: "Failed to save research entry", error: error.message }; 
   }
 };
 
-export const getBlogTopicById = async (blogId) => {
+export const getResearchData = async (id) => {
   try {
-    console.log("Received blogId:", blogId);
-    if (!blogId) {
-      console.error("blogId is undefined or null");
-      return null;
+    if (!id) {
+      console.error("Blog ID is missing");
+      return { success: false, message: "Blog ID is missing" };
     }
 
-    const result = await db
-      .select('selectedTopic')
-      .from('blogs')
-      .where('id', blogId)
-      .first();
+    await db.select('*').from('research_data').where({ id }).first();
 
-    console.log(`Database query result for blogId ${blogId}:`, result);
-
-    return result?.selectedTopic || null;
   } catch (error) {
-    console.error("Error fetching blog topic:", error);
-    return null;
-  }
-};
-
-
-export const getResearchByBlogId = async (blogId) => {
-  try {
-    if (!blogId) {
-      console.error('Blog ID is required');
-      return;
-    }
-
-    const result = await db.select('*').from('research_data').where('blog_id', blogId);
-
-    return result;
-  } catch (error) {
-    console.error('Error in getResearchByBlogId:', error);
+    return { success: false, message: "Failed to fetch research data", error: error.message }; 
   }
 };
