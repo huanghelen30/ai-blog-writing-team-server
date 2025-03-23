@@ -34,46 +34,11 @@ export const writeDraft = async (req, res, model) => {
 
       const result = await model.generateContent(articlePrompt);
       const responseText = result.response.text().trim();
-
       let cleanResponse = responseText.replace(/(\*\*|\*|##)/g, "");
       cleanResponse = cleanResponse.replace(/\n+/g, "\n").trim()
       
       res.json({
         message: "Draft written successfully",
-        content: cleanResponse,
-      });
-
-      } catch (error) {
-        console.error("Error generating content:", error);
-        res.status(500).json({ error: error.message || "Internal server error" });
-      }
-}
-
-export const refineDraft = async (req, res) => {
-    try {
-      const { action, userInput, blogContent } = req.body;
-      const id = req.params.blogId;
-
-      if (!blogContent) {
-        return res.status(400).json({ error: "existing blog content is required" });
-      }
-
-      let existingBlog = await BlogModel.getBlogById(id);
-
-      if (!existingBlog) {
-        return res.status(404).json({ error: "Blog draft not found" });
-      }
-
-      const articlePrompt = `Based on userinput and the existing blog content, refine the draft article.`;
-
-      const result = await model.generateContent(articlePrompt);
-      const responseText = result.response.text().trim();
-
-      let cleanResponse = responseText.replace(/(\*\*|\*|##)/g, "");
-      cleanResponse = cleanResponse.replace(/\n+/g, "\n").trim()
-      
-      res.json({
-        message: "Draft suggestions made successfully",
         content: cleanResponse,
       });
 
