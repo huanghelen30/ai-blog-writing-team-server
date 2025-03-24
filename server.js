@@ -24,11 +24,11 @@ app.use("/write/", writeRoutes(model));
 app.use("/edit/", editRoutes(model));
 app.use("/blog", blogRoutes());
 
-app.get("/", (req, res) => {
+app.get("/", (_req, res) => {
   res.send("Server is running");
 });
 
-app.use((err, req, res, next) => {
+app.use((err, _req, res) => {
   console.error('Server error:', err);
   res.status(500).json({ error: 'Internal server error', message: err.message });
 });

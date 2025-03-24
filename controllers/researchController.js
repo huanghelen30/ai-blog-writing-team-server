@@ -5,13 +5,13 @@ import researchService from "../service/researchService.js";
 export const handleResearch = async (req, res) => {
   try {
     const { action } = req.body;
-    const id = req.params.blogId; 
+    const blogId = req.params.blogId; 
 
-    if (!id) {
+    if (!blogId) {
       return res.status(400).json({ error: "Invalid blog ID" });
     }
 
-    const topic = await getBlogTopicById(id);
+    const topic = await getBlogTopicById(blogId);
 
     if (!topic || Object.keys(topic).length === 0 || !topic) {
       return res.status(404).json({ error: "No valid topic found for this blog ID" });
@@ -23,7 +23,7 @@ export const handleResearch = async (req, res) => {
     if (action === "research") {
       researchData = await researchService.fetchResearch(topicString);
     } else {
-      researchData = await getResearchByBlogId(id);
+      researchData = await getResearchByBlogId(blogId);
     }
 
     if (!researchData) {
@@ -36,7 +36,7 @@ export const handleResearch = async (req, res) => {
     });
 
   } catch (error) {
-    console.error(`[handleResearch] Error processing research for blogId ${req.params.id}:`, error);
+    console.error(`[handleResearch] Error processing research for blogId ${req.params.blogId}:`, error);
     return res.status(500).json({ 
       error: "Internal server error", 
       message: error.message 
@@ -45,33 +45,34 @@ export const handleResearch = async (req, res) => {
 };
 
 export const saveResearch = async (req, res) => {
-  const id = req.params.blogId;
+  const blogId = req.params.blogId;
   const { content, source } = req.body;
 
   try {
-    if (!id) {
-      throw new Error('Blog ID is required to save research');
+    if (!blogId) {
+      return res.status(404).json({ error: 'Blog ID is required to save research'});
     }
 
     if (!content) {
-      throw new Error('Research data is missing or undefined');
+      return res.status(404).json({ error: 'Research data is missing or undefined'});
     }
 
     const researchEntry = {
       content: JSON.stringify(content),
       source: source || "Unknown",
     };
+    const result = await saveResearchData(blogId, researchEntry);
 
-    const result = await saveResearchData(id, researchEntry);
-
-    res.json({ message: "Research saved successfully!" });
+    if (result.success) {
+      res.json({ message: "Research saved successfully!" });
+    } else {
+      res.status(500).json({ error: "Failed to save research data" });
+    }
   } catch (error) {
     console.error('[saveResearch] Error:', error);
     res.status(500).json({ error: "Error saving research", message: error.message });
   }
 };
-
-
 
 export const getResearch = async (req, res) => {
   try {
