@@ -1,7 +1,6 @@
 export const editDraft = async (req, res, model) => {
     try {
-      const { id } = req.params;
-      const { action, draft, instructions } = req.body;
+      const { draft, instructions } = req.body;
       
       if (!draft || !instructions) {
         return res.status(400).json({ error: "Both draft and instructions are required" });
@@ -23,14 +22,14 @@ export const editDraft = async (req, res, model) => {
       
       Return only suggestions for improvement without additional explanations.`;
 
-      const result = await model.generateContent(editPrompt);
-      const responseText = result.response.text().trim();
-      let cleanResponse = responseText.replace(/(\*\*|\*|##)/g, "");
-      cleanResponse = cleanResponse.replace(/\n+/g, "\n").trim()
+      const cleanResponse = (await model.generateContent(editPrompt)).response.text().trim()
+        .replace(/(\*\*|\*|##)/g, "")  
+        .replace(/\n+/g, "\n")
+        .replace(/([a-z0-9])\n([A-Z])/g, "$1\n\n$2")
+        .trim();
 
       res.json({ cleanResponse });
     } catch (error) {
-      console.error("[EDIT] Error refining draft:", error);
       res.status(500).json({ error: error.message || "Internal server error" });
     }
   };

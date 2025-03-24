@@ -35,7 +35,6 @@ const topicRoutes = (model) => {
 
       return res.status(400).json({ error: "Invalid request" });
     } catch (error) {
-      console.error("Server error:", error);
       res.status(500).json({ error: "Internal server error" });
     }
   });
