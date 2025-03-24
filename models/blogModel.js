@@ -1,7 +1,7 @@
 import db from '../helpers/db.js';
 
 export const getAllBlogs = async () => {
-  return await db('blogs').select('*').orderBy('created_at');
+  return await db('blogs').select('*').orderBy('updated_at', 'desc');
 };
 
 export const getBlogById = async (id) => {
@@ -9,7 +9,8 @@ export const getBlogById = async (id) => {
 };
 
 export const createBlog = async (blogData) => {
-  return await db('blogs').insert(blogData);
+  const [newBlog] = await db('blogs').insert(blogData);
+  return newBlog;
 };
 
 export const updateBlog = async (id, blogData) => {
