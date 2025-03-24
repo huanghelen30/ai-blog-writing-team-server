@@ -20,7 +20,37 @@ export async function seed(knex) {
         {
             selectedTopic: 'Blockchain',
             content: 'Blockchain technology is set to revolutionize industries...',
-            status: 'published',
+            status: 'draft',
+        },
+        {
+            selectedTopic: 'Data Science',
+            content: 'Data science is a multidisciplinary field that uses scientific methods...',
+            status: 'draft',
+        },
+        {
+            selectedTopic: 'Cybersecurity',
+            content: 'As the world becomes more connected, cybersecurity is more important than ever...',
+            status: 'draft',
+        },
+        {
+            selectedTopic: 'Cloud Computing',
+            content: 'Cloud computing has revolutionized how we manage and store data...',
+            status: 'draft',
+        },
+        {
+            selectedTopic: 'Virtual Reality',
+            content: 'Virtual reality is no longer just a concept; it is transforming industries...',
+            status: 'draft',
+        },
+        {
+            selectedTopic: 'Quantum Computing',
+            content: 'Quantum computing is opening new doors in technology and problem solving...',
+            status: 'draft',
+        },
+        {
+            selectedTopic: '5G Technology',
+            content: 'The rollout of 5G technology is expected to change the connectivity landscape...',
+            status: 'draft',
         },
     ], ['id']);
 
