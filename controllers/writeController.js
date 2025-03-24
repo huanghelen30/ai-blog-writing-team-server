@@ -3,15 +3,14 @@ import * as BlogModel from "../models/blogModel.js";
 
 export const writeDraft = async (req, res, model) => {
     try {
-      const { action } = req.body;
-      const id = req.params.blogId;
+      const blogId = req.params.blogId;
 
-      if (!id) {
+      if (!blogId) {
         return res.status(400).json({ error: "Research data with mainTopicSummary is required" });
       }
 
-      let existingBlog = await BlogModel.getBlogById(id);
-      let existingResearch = await getResearchData(id);
+      let existingBlog = await BlogModel.getBlogById(blogId);
+      let existingResearch = await getResearchData(blogId);
 
       if (!existingBlog) {
         return res.status(404).json({ error: "Blog draft not found" });
@@ -32,10 +31,11 @@ export const writeDraft = async (req, res, model) => {
       - Avoid unnecessary fluff and jargon
       - write it out as if it were a essay in paragraph format with no bold or italic characters, skip the headings and subheadings`;
 
-      const result = await model.generateContent(articlePrompt);
-      const responseText = result.response.text().trim();
-      let cleanResponse = responseText.replace(/(\*\*|\*|##)/g, "");
-      cleanResponse = cleanResponse.replace(/\n+/g, "\n").trim()
+      const cleanResponse = (await model.generateContent(articlePrompt)).response.text().trim()
+        .replace(/(\*\*|\*|##)/g, "")  
+        .replace(/\n+/g, "\n")
+        .replace(/([a-z0-9])\n([A-Z])/g, "$1\n\n$2")
+        .trim();
       
       res.json({
         message: "Draft written successfully",

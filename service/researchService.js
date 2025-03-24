@@ -8,7 +8,6 @@ const headers = {
 const fetchResearch = async (topic) => {
   try {
     const searchUrl = `https://en.wikipedia.org/w/api.php?action=opensearch&search=${encodeURIComponent(topic)}&limit=5&format=json&origin=*`;
-    
     const searchResponse = await axios.get(searchUrl, { headers });
     const titles = searchResponse.data[1] || [];
 

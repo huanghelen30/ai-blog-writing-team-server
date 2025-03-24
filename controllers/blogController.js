@@ -4,7 +4,6 @@ class BlogController {
   static async getAllBlogs(_req, res) {
     try {
       const blogs = await BlogModel.getAllBlogs();
-      console.log("Fetched blogs from DB:", blogs);
       res.json(blogs);
     } catch (error) {
       console.error("Error retrieving blogs:", error);
@@ -12,10 +11,9 @@ class BlogController {
     }
   };
   
-
   static async getBlogById(req, res) {
     try {
-      const blog = await BlogModel.getBlogById(req.params.id);
+      const blog = await BlogModel.getBlogById(req.params.blogId);
       if (!blog) return res.status(404).json({ message: "Blog not found" });
       res.json(blog);
     } catch (error) {
@@ -42,10 +40,8 @@ class BlogController {
 
   static async editBlog(req, res) {
     try {
-      console.log("Received update request for blog:", req.params.id);
-      console.log("Request body:", req.body);
   
-      const updatedBlog = await BlogModel.updateBlog(req.params.id, req.body);
+      const updatedBlog = await BlogModel.updateBlog(req.params.blogId, req.body);
       if (!updatedBlog) {
         return res.status(404).json({ message: "Blog not found" });
       }
