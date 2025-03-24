@@ -1,14 +1,17 @@
 import * as BlogModel from '../models/blogModel.js';
 
 class BlogController {
-  static async getAllBlogs(req, res) {
+  static async getAllBlogs(_req, res) {
     try {
       const blogs = await BlogModel.getAllBlogs();
+      console.log("Fetched blogs from DB:", blogs);
       res.json(blogs);
     } catch (error) {
+      console.error("Error retrieving blogs:", error);
       res.status(500).json({ message: "Error retrieving blogs" });
     }
   };
+  
 
   static async getBlogById(req, res) {
     try {
