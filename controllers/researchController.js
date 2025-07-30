@@ -2,7 +2,7 @@ import { getBlogTopicById, getResearchByBlogId } from "../models/blogModel.js";
 import { saveResearchData } from "../models/researchModel.js";
 import researchService from "../service/researchService.js";
 
-export const handleResearch = async (req, res) => {
+export const handleResearch = async (req, res, model) => {
   try {
     const { action } = req.body;
     const blogId = req.params.blogId; 
@@ -18,10 +18,14 @@ export const handleResearch = async (req, res) => {
     }
 
     const topicString = topic.selectedTopic;
+    const KeywordPrompt = `Extract the most relevant single keyword from this topic for search purposes on Wikipedia: "${topicString}"."`;
+    const relevantKeyword = (await model.generateContent(KeywordPrompt)).response.text()
     let researchData = null;
 
+    console.log(relevantKeyword);
+
     if (action === "research") {
-      researchData = await researchService.fetchResearch(topicString);
+      researchData = await researchService.fetchResearch(relevantKeyword);
     } else {
       researchData = await getResearchByBlogId(blogId);
     }
