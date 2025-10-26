@@ -7,10 +7,11 @@ import researchRoutes from "./routes/researchRoutes.js";
 import writeRoutes from "./routes/writeRoutes.js";
 import editRoutes from "./routes/editRoutes.js";
 import blogRoutes from "./routes/blogRoutes.js";
+import HealthChecker from "./healthCheck.js";
 
 const app = express();
 const genAI = new GoogleGenerativeAI(process.env.API_KEY);
-const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
 const port = process.env.PORT || 8082;
 
 app.locals.model = model;
@@ -26,6 +27,25 @@ app.use("/blog", blogRoutes());
 
 app.get("/", (_req, res) => {
   res.send("Server is running");
+});
+
+// Health check endpoint
+app.get("/health", async (_req, res) => {
+  try {
+    const checker = new HealthChecker();
+    const healthStatus = await checker.getHealthStatus();
+    
+    const allHealthy = Object.values(healthStatus.status).every(result => result.status === 'healthy');
+    const statusCode = allHealthy ? 200 : 503;
+    
+    res.status(statusCode).json(healthStatus);
+  } catch (error) {
+    res.status(500).json({
+      error: "Health check failed",
+      message: error.message,
+      timestamp: new Date().toISOString()
+    });
+  }
 });
 
 app.use((err, _req, res) => {
