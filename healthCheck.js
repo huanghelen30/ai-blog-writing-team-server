@@ -127,7 +127,7 @@ class HealthChecker {
       const result = await db.raw('SELECT 1 as test');
       const responseTime = Date.now() - startTime;
 
-      if (result && result[0] && result[0][0].test === 1) {
+      if (result && result.rows && result.rows[0] && result.rows[0].test === 1) {
         return {
           status: API_STATUS.HEALTHY,
           message: 'Database connection is working',

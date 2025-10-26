@@ -9,12 +9,12 @@ export const getBlogById = async (id) => {
 };
 
 export const createBlog = async (blogData) => {
-  const [newBlog] = await db('blogs').insert(blogData);
+  const [newBlog] = await db('blogs').insert(blogData).returning('*');
   return newBlog;
 };
 
 export const updateBlog = async (id, blogData) => {
-  return await db('blogs').where({ id }).update(blogData);
+  return await db('blogs').where({ id }).update(blogData).returning('*');
 };
 
 export const getBlogTopicById = async (id) => {

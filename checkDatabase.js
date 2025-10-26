@@ -5,12 +5,8 @@
  * Shows current database contents
  */
 
-import knex from 'knex';
-import config from './knexfile.js';
+import db from './helpers/db.js';
 import "dotenv/config";
-
-const environment = process.env.NODE_ENV || 'development';
-const db = knex(config[environment]);
 
 async function checkDatabase() {
   console.log('📊 Checking database contents...\n');
@@ -18,7 +14,7 @@ async function checkDatabase() {
   try {
     // Check blogs
     console.log('📝 BLOGS:');
-    const blogs = await db('blogs').select('id', 'selectedTopic', 'status', 'created_at');
+    const blogs = await db('blogs').select('id', 'selectedTopic', 'status', 'created_at').orderBy('created_at', 'desc');
     
     if (blogs.length === 0) {
       console.log('   No blogs found');
@@ -34,7 +30,8 @@ async function checkDatabase() {
     console.log('\n🔬 RESEARCH DATA:');
     const research = await db('research_data')
       .select('research_data.research_data_id', 'research_data.blog_id', 'research_data.source', 'research_data.content', 'blogs.selectedTopic as topic')
-      .join('blogs', 'research_data.blog_id', 'blogs.id');
+      .join('blogs', 'research_data.blog_id', 'blogs.id')
+      .orderBy('research_data.research_data_id');
     
     if (research.length === 0) {
       console.log('   No research data found');

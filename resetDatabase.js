@@ -5,12 +5,8 @@
  * Clears all data and reseeds with sample entries
  */
 
-import knex from 'knex';
-import config from './knexfile.js';
+import db from './helpers/db.js';
 import "dotenv/config";
-
-const environment = process.env.NODE_ENV || 'development';
-const db = knex(config[environment]);
 
 async function resetDatabase() {
   console.log('🗑️  Starting database reset...\n');

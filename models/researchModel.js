@@ -30,7 +30,8 @@ export const getResearchData = async (id) => {
       return { success: false, message: "Blog ID is missing" };
     }
 
-    await db.select('*').from('research_data').where({ id }).first();
+    const researchData = await db('research_data').where('blog_id', id).first();
+    return researchData;
 
   } catch (error) {
     return { success: false, message: "Failed to fetch research data", error: error.message }; 

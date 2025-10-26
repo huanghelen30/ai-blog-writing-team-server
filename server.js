@@ -8,6 +8,7 @@ import writeRoutes from "./routes/writeRoutes.js";
 import editRoutes from "./routes/editRoutes.js";
 import blogRoutes from "./routes/blogRoutes.js";
 import HealthChecker from "./healthCheck.js";
+import db from "./helpers/db.js";
 
 const app = express();
 const genAI = new GoogleGenerativeAI(process.env.API_KEY);
@@ -52,6 +53,11 @@ app.use((err, _req, res) => {
   console.error('Server error:', err);
   res.status(500).json({ error: 'Internal server error', message: err.message });
 });
+
+// Test database connection
+db.raw('SELECT NOW()')
+  .then(res => console.log('Database connected successfully at', res.rows[0].now))
+  .catch(err => console.error('Database connection error:', err));
 
 app.listen(port, () => {
   console.log(`Server is running on port ${port}`);
