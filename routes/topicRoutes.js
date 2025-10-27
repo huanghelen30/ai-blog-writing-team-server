@@ -26,13 +26,6 @@ const topicRoutes = (model) => {
         });
       }
 
-      if (selectedTopic) {
-        return res.json({
-          message: `You selected the topic: "${selectedTopic}". Please click 'Save' to create your blog post.`,
-          selectedTopic
-        });
-      }
-
       return res.status(400).json({ error: "Invalid request" });
     } catch (error) {
       res.status(500).json({ error: "Internal server error" });
