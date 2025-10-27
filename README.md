@@ -1,5 +1,7 @@
 # AI Blog Writing Team - Server
 
+Deployed at https://aiagentcy.netlify.app/
+
 This is the backend server for the AI Blog Writing Team application. It provides APIs for blog writing, research, editing, and topic management using Google's Generative AI.
 
 ## Prerequisites
