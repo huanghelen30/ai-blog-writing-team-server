@@ -1,5 +1,5 @@
-import { getBlogTopicById } from "../models/blogModel.js";
-import { saveResearchData, getResearchData } from "../models/researchModel.js";
+import { getBlogTopicById, getResearchByBlogId } from "../models/blogModel.js";
+import { saveResearchData } from "../models/researchModel.js";
 import researchService from "../service/researchService.js";
 
 export const handleResearch = async (req, res, model) => {
@@ -27,7 +27,7 @@ export const handleResearch = async (req, res, model) => {
     if (action === "research") {
       researchData = await researchService.fetchResearch(relevantKeyword);
     } else {
-      researchData = await getResearchData(blogId);
+      researchData = await getResearchByBlogId(blogId);
     }
 
     if (!researchData) {
@@ -86,7 +86,7 @@ export const getResearch = async (req, res) => {
       return res.status(400).json({ error: "Blog ID is required" });
     }
 
-    const researchData = await getResearchData(blogId);
+    const researchData = await getResearchByBlogId(blogId);
     
     if (!researchData || Object.keys(researchData).length === 0) {
       return res.status(404).json({ error: "Research not found for this blog ID" });
